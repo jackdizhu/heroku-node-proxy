@@ -19,7 +19,7 @@ var app = express();
 
 var google_analytics_id = process.env.GA_ID || null;
 
-function addGa (html) {
+function addGa (html, debug) {
     if (google_analytics_id) {
         var ga = `
             <script type="text/javascript">
@@ -34,7 +34,7 @@ function addGa (html) {
             </script>`;
         html = html.replace("</body>", ga + "\n\n</body>");
     }
-    return html;
+    return addDebug(html, debug);
 }
 function addDebug (html, debug) {
     if (debug) {
@@ -55,8 +55,7 @@ function googleAnalyticsMiddleware (data) {
         data.stream = data.stream.pipe(new Transform({
             decodeStrings: false,
             transform: function (chunk, encoding, next) {
-                this.push(addGa(chunk.toString()));
-                this.push(addDebug(chunk.toString(), debug));
+                this.push(addGa(chunk.toString(), debug));
                 next();
             }
         }));
